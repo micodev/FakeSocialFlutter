@@ -1,10 +1,5 @@
-# fake_tweet app alpha version
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-=======
 # FakeSocialFlutter
+# The app still in alpha version.
 this app plan to make fake posts or feed from social media and you can easily share it as it to your friends.
 
 # screenshot 
