@@ -74,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       RenderRepaintBoundary boundary =
           _globalKey.currentContext.findRenderObject();
-      ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       var pngBytes = byteData.buffer.asUint8List();
@@ -122,13 +122,15 @@ class _MyHomePageState extends State<MyHomePage> {
       }),
       child: Scaffold(
         key: _scaffold,
-        floatingActionButton: isSaving
-            ? null
-            : FloatingActionButton(
-                child: Icon(Icons.save),
-                onPressed: _capturePng,
-              ),
         appBar: AppBar(
+          actions: <Widget>[
+            isSaving
+                ? SizedBox()
+                : IconButton(
+                    icon: Icon(Icons.save),
+                    onPressed: _capturePng,
+                  ),
+          ],
           title: Text(widget.title),
         ),
         body: SingleChildScrollView(
@@ -151,11 +153,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         title: Row(
                           children: <Widget>[
-                            Text(
-                              name == "" ? "name" : name,
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                              child: Text(
+                                name == "" ? "name" : name,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
-                            SizedBox(width: 10),
                             isVerfied
                                 ? Icon(
                                     TwitterIcons.twitter_verified_badge,
@@ -312,6 +316,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: <Widget>[
                         Flexible(
                             child: TextField(
+                          textDirection: isarabicbody
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
                           maxLength: 700,
                           minLines: 1,
                           maxLines: 30,
