@@ -75,8 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
       DownloadsPathProvider.downloadsDirectory.then((v) async {
         final status = await Permission.storage.request();
         if (status.isGranted) {
-          File file =
-              await new File("${v.path}/screen.png").writeAsBytes(pngBytes);
+          await new File("${v.path}/screen.png").writeAsBytes(pngBytes);
           setState(() {});
         }
       });
