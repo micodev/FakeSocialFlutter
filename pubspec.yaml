@@ -34,6 +34,7 @@ dependencies:
   intl:
   get_it:
   jiffy:
+  gallery_saver:
 dev_dependencies:
   flutter_test:
     sdk: flutter

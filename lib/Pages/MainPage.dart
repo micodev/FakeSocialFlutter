@@ -4,12 +4,14 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
+import 'package:fake_tweet/Helper/RichTextView.dart';
 import 'package:fake_tweet/Helper/locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_picker/flutter_picker.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../TwitterIcons.dart';
@@ -40,6 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   TextEditingController _reply = TextEditingController(text: "0");
   bool isVerfied = false;
   bool isliked = false;
+  bool isarabicbody = false;
   File _image;
   final picker = ImagePicker();
 
@@ -62,29 +65,55 @@ class _MyHomePageState extends State<MyHomePage> {
     date = "${Random().nextInt(12)}:${Random().nextInt(59)}am - 26th Jan 1999";
   }
 
+  bool isSaving = false;
   GlobalKey _globalKey = new GlobalKey();
   Future<Uint8List> _capturePng() async {
+    setState(() {
+      isSaving = true;
+    });
     try {
       RenderRepaintBoundary boundary =
           _globalKey.currentContext.findRenderObject();
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+      ui.Image image = await boundary.toImage(pixelRatio: 1.0);
       ByteData byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       var pngBytes = byteData.buffer.asUint8List();
       DownloadsPathProvider.downloadsDirectory.then((v) async {
         final status = await Permission.storage.request();
         if (status.isGranted) {
-          await new File("${v.path}/screen.png").writeAsBytes(pngBytes);
-          setState(() {});
+          final file =
+              await new File("${v.path}/screen${Random().nextInt(919199)}.png")
+                  .writeAsBytes(pngBytes);
+          await file.create(recursive: true);
+          await GallerySaver.saveImage(file.path, albumName: "Downloads");
+          await file.delete();
         }
+        _scaffold.currentState.hideCurrentSnackBar();
+        _scaffold.currentState.showSnackBar(SnackBar(
+          content: Text("The image saved successfully."),
+          duration: Duration(seconds: 3),
+        ));
+        setState(() {
+          isSaving = false;
+        });
       });
+
       return pngBytes;
     } catch (e) {
+      _scaffold.currentState.hideCurrentSnackBar();
+      _scaffold.currentState.showSnackBar(SnackBar(
+        content: Text("Problem with saving it."),
+        duration: Duration(seconds: 3),
+      ));
+      setState(() {
+        isSaving = false;
+      });
       print(e);
       return null;
     }
   }
 
+  GlobalKey<ScaffoldState> _scaffold = new GlobalKey();
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -92,10 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
         FocusScope.of(context).requestFocus(FocusNode());
       }),
       child: Scaffold(
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.save),
-          onPressed: _capturePng,
-        ),
+        key: _scaffold,
+        floatingActionButton: isSaving
+            ? null
+            : FloatingActionButton(
+                child: Icon(Icons.save),
+                onPressed: _capturePng,
+              ),
         appBar: AppBar(
           title: Text(widget.title),
         ),
@@ -123,7 +155,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               name == "" ? "name" : name,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(width: 5),
+                            SizedBox(width: 10),
                             isVerfied
                                 ? Icon(
                                     TwitterIcons.twitter_verified_badge,
@@ -141,17 +173,27 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(72.0, 0, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(72.0, 0, 16, 0),
                         child: Column(
                           children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Text(
-                                  body != "" ? body : "Insert body here.",
-                                  softWrap: true,
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
+                            Directionality(
+                              textDirection: isarabicbody
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
+                              child: Row(
+                                children: <Widget>[
+                                  Flexible(
+                                    child: SmartText(
+                                        text: body != ""
+                                            ? body
+                                            : "Insert body here.",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        )),
+                                  )
+                                ],
+                              ),
                             ),
                             SizedBox(height: 10),
                             Row(
@@ -176,7 +218,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         size: 16,
                                       ),
                                       SizedBox(width: 10),
-                                      Text(NumberFormat.compact()
+                                      Text(intl.NumberFormat.compact()
                                           .format(double.parse(reply)))
                                     ],
                                   ),
@@ -189,7 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         size: 16,
                                       ),
                                       SizedBox(width: 10),
-                                      Text(NumberFormat.compact()
+                                      Text(intl.NumberFormat.compact()
                                           .format(double.parse(retweet)))
                                     ],
                                   ),
@@ -205,7 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         color: isliked ? Colors.red[600] : null,
                                       ),
                                       SizedBox(width: 10),
-                                      Text(NumberFormat.compact()
+                                      Text(intl.NumberFormat.compact()
                                           .format(double.parse(likes)))
                                     ],
                                   ),
@@ -270,6 +312,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: <Widget>[
                         Flexible(
                             child: TextField(
+                          maxLength: 700,
                           minLines: 1,
                           maxLines: 30,
                           controller: _body,
@@ -329,6 +372,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     SizedBox(
                       height: 10,
+                    ),
+                    Divider(
+                      thickness: 1,
+                    ),
+                    ListTile(
+                      leading: Text("Is arabic body ?"),
+                      trailing: Switch(
+                        value: isarabicbody,
+                        onChanged: (bool newValue) {
+                          setState(() {
+                            isarabicbody = newValue;
+                          });
+                        },
+                      ),
                     ),
                     Divider(
                       thickness: 1,
