@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# fake_tweet
+# fake_tweet alpha version
 
 A new Flutter project.
 
@@ -18,4 +17,8 @@ samples, guidance on mobile development, and a full API reference.
 =======
 # FakeSocialFlutter
 this app plan to make fake posts or feed from social media and you can easily share it as it to your friends.
->>>>>>> aa9331dffea4f2f5f69a75a0c689def84e4242a4
+
+# screenshot 
+| Form | Result |
+|------|--------|
+|![screenshot1](https://i.ibb.co/Nshs87y/photo-2020-05-31-17-11-20.jpg)|![screenshot0](https://i.ibb.co/541VZfW/photo-2020-05-31-17-11-14.jpg)|
