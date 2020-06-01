@@ -8,6 +8,7 @@ import 'package:fake_tweet/Helper/NavigationService.dart';
 import 'package:fake_tweet/Helper/RichTextView.dart';
 import 'package:fake_tweet/Helper/locator.dart';
 import 'package:fake_tweet/Helper/theme_config.dart';
+import 'package:fake_tweet/Pages/FullscreenView.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_picker/flutter_picker.dart';
@@ -69,23 +70,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   bool isSaving = false;
   GlobalKey _globalKey = new GlobalKey();
-  Future<Uint8List> _capturePng() async {
+  Future<Uint8List> imagebytes() async {
+    RenderRepaintBoundary boundary =
+        _globalKey.currentContext.findRenderObject();
+    ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    var pngBytes = byteData.buffer.asUint8List();
+    return pngBytes;
+  }
+
+  Future _capturePng() async {
     setState(() {
       isSaving = true;
     });
     try {
-      RenderRepaintBoundary boundary =
-          _globalKey.currentContext.findRenderObject();
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      var pngBytes = byteData.buffer.asUint8List();
       DownloadsPathProvider.downloadsDirectory.then((v) async {
         final status = await Permission.storage.request();
         if (status.isGranted) {
           final file =
               await new File("${v.path}/screen${Random().nextInt(919199)}.png")
-                  .writeAsBytes(pngBytes);
+                  .writeAsBytes(await imagebytes());
           await file.create(recursive: true);
           await GallerySaver.saveImage(file.path, albumName: "Downloads");
           await file.delete();
@@ -99,8 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
           isSaving = false;
         });
       });
-
-      return pngBytes;
     } catch (e) {
       _scaffold.currentState.hideCurrentSnackBar();
       _scaffold.currentState.showSnackBar(SnackBar(
@@ -111,7 +113,6 @@ class _MyHomePageState extends State<MyHomePage> {
         isSaving = false;
       });
       print(e);
-      return null;
     }
   }
 
@@ -127,6 +128,16 @@ class _MyHomePageState extends State<MyHomePage> {
           key: _scaffold,
           appBar: AppBar(
             actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.fullscreen),
+                onPressed: () async {
+                  Uint8List img = await imagebytes();
+                  await Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => FullScreenCapture(
+                            img: Image.memory(img),
+                          )));
+                },
+              ),
               isSaving
                   ? SizedBox()
                   : IconButton(

@@ -22,6 +22,7 @@ class MyApp extends StatelessWidget {
         initTheme: initTheme,
         child: Builder(builder: (context) {
           return MaterialApp(
+              debugShowCheckedModeBanner: false,
               navigatorKey: locator.get<NavigationService>().navigatorKey,
               title: 'FakeTwitter',
               theme: ThemeProvider.of(context),
