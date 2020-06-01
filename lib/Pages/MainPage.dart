@@ -47,12 +47,22 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isliked = false;
   bool isarabicbody = false;
   File _image;
+  File _postImage;
   final picker = ImagePicker();
 
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
+      if (pickedFile == null) return;
       _image = File(pickedFile.path);
+    });
+  }
+
+  Future getPostImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile == null) return;
+      _postImage = File(pickedFile.path);
     });
   }
 
@@ -116,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  GlobalKey rowKey = GlobalKey();
   GlobalKey<ScaffoldState> _scaffold = new GlobalKey();
   @override
   Widget build(BuildContext context) {
@@ -233,8 +244,29 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ],
                                 ),
                               ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              _postImage != null
+                                  ? Container(
+                                      width: (rowKey.currentContext
+                                              .findRenderObject() as RenderBox)
+                                          .size
+                                          .width,
+                                      height: 200,
+                                      decoration: new BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          image: new DecorationImage(
+                                            image: Image.file(
+                                              _postImage,
+                                            ).image,
+                                            fit: BoxFit.cover,
+                                          )))
+                                  : SizedBox(),
                               SizedBox(height: 10),
                               Row(
+                                key: rowKey,
                                 children: <Widget>[
                                   Text(
                                     date,
@@ -399,7 +431,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: IconButton(
                                 icon: _image != null
                                     ? Icon(Icons.broken_image)
-                                    : Icon(Icons.image),
+                                    : Icon(Icons.person),
                                 onPressed: () {
                                   if (_image != null) {
                                     setState(() {
@@ -407,6 +439,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                     });
                                   } else {
                                     getImage();
+                                  }
+                                }),
+                          ),
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: _postImage != null
+                                    ? Icon(Icons.broken_image)
+                                    : Icon(Icons.image),
+                                onPressed: () {
+                                  if (_postImage != null) {
+                                    setState(() {
+                                      _postImage = null;
+                                    });
+                                  } else {
+                                    getPostImage();
                                   }
                                 }),
                           )
