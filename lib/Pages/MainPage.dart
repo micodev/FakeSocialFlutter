@@ -2,10 +2,12 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
 import 'package:fake_tweet/Helper/RichTextView.dart';
 import 'package:fake_tweet/Helper/locator.dart';
+import 'package:fake_tweet/Helper/theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_picker/flutter_picker.dart';
@@ -120,312 +122,335 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () => setState(() {
         FocusScope.of(context).requestFocus(FocusNode());
       }),
-      child: Scaffold(
-        key: _scaffold,
-        appBar: AppBar(
-          actions: <Widget>[
-            isSaving
-                ? SizedBox()
-                : IconButton(
-                    icon: Icon(Icons.save),
-                    onPressed: _capturePng,
-                  ),
-          ],
-          title: Text(widget.title),
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              RepaintBoundary(
-                key: _globalKey,
-                child: Card(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor:
-                              _image != null ? Colors.transparent : null,
-                          backgroundImage:
-                              _image != null ? Image.file(_image).image : null,
-                          child: _image != null ? null : Icon(Icons.person),
-                          radius: 20,
-                        ),
-                        title: Row(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                              child: Text(
-                                name == "" ? "name" : name,
-                                style: TextStyle(fontWeight: FontWeight.bold),
+      child: ThemeSwitchingArea(
+        child: Scaffold(
+          key: _scaffold,
+          appBar: AppBar(
+            actions: <Widget>[
+              isSaving
+                  ? SizedBox()
+                  : IconButton(
+                      icon: Icon(Icons.save),
+                      onPressed: _capturePng,
+                    ),
+              ThemeSwitcher(
+                clipper: ThemeSwitcherCircleClipper(),
+                builder: (context) {
+                  return IconButton(
+                    icon:
+                        ThemeProvider.of(context).brightness == Brightness.light
+                            ? Icon(Icons.wb_incandescent)
+                            : Icon(Icons.lightbulb_outline),
+                    onPressed: () {
+                      ThemeSwitcher.of(context).changeTheme(
+                        theme: ThemeProvider.of(context).brightness ==
+                                Brightness.light
+                            ? darkTheme
+                            : lightTheme,
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+            title: Text(widget.title),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                RepaintBoundary(
+                  key: _globalKey,
+                  child: Card(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                _image != null ? Colors.transparent : null,
+                            backgroundImage: _image != null
+                                ? Image.file(_image).image
+                                : null,
+                            child: _image != null ? null : Icon(Icons.person),
+                            radius: 20,
+                          ),
+                          title: Row(
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+                                child: Text(
+                                  name == "" ? "name" : name,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                            isVerfied
-                                ? Icon(
-                                    TwitterIcons.twitter_verified_badge,
-                                    color: Colors.blueAccent,
-                                    size: 16,
-                                  )
-                                : SizedBox(),
-                          ],
+                              isVerfied
+                                  ? Icon(
+                                      TwitterIcons.twitter_verified_badge,
+                                      color: Colors.blueAccent,
+                                      size: 16,
+                                    )
+                                  : SizedBox(),
+                            ],
+                          ),
+                          subtitle:
+                              Text(username == "" ? "@username" : "@$username"),
+                          trailing: Icon(
+                            TwitterIcons.arrow_down_outline,
+                            size: 16,
+                          ),
                         ),
-                        subtitle:
-                            Text(username == "" ? "@username" : "@$username"),
-                        trailing: Icon(
-                          TwitterIcons.arrow_down_outline,
-                          size: 16,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(72.0, 0, 16, 0),
-                        child: Column(
-                          children: <Widget>[
-                            Directionality(
-                              textDirection: isarabicbody
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              child: Row(
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(72.0, 0, 16, 0),
+                          child: Column(
+                            children: <Widget>[
+                              Directionality(
+                                textDirection: isarabicbody
+                                    ? TextDirection.rtl
+                                    : TextDirection.ltr,
+                                child: Row(
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: SmartText(
+                                          text: body != ""
+                                              ? body
+                                              : "Insert body here.",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                          )),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Row(
                                 children: <Widget>[
-                                  Flexible(
-                                    child: SmartText(
-                                        text: body != ""
-                                            ? body
-                                            : "Insert body here.",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                        )),
+                                  Text(
+                                    date,
+                                    style: TextStyle(
+                                        color: Colors.grey,
+                                        fontWeight: FontWeight.w500),
+                                    softWrap: true,
                                   )
                                 ],
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              children: <Widget>[
-                                Text(
-                                  date,
-                                  style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500),
-                                  softWrap: true,
-                                )
-                              ],
-                            ),
-                            SizedBox(height: 16),
-                            Row(
-                              children: <Widget>[
-                                Flexible(
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        TwitterIcons.comment_outline,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(intl.NumberFormat.compact()
-                                          .format(double.parse(reply)))
-                                    ],
+                              SizedBox(height: 16),
+                              Row(
+                                children: <Widget>[
+                                  Flexible(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          TwitterIcons.comment_outline,
+                                          size: 16,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(intl.NumberFormat.compact()
+                                            .format(double.parse(reply)))
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Flexible(
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        TwitterIcons.retweet_outline,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(intl.NumberFormat.compact()
-                                          .format(double.parse(retweet)))
-                                    ],
+                                  Flexible(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          TwitterIcons.retweet_outline,
+                                          size: 16,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(intl.NumberFormat.compact()
+                                            .format(double.parse(retweet)))
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Flexible(
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        isliked
-                                            ? TwitterIcons.heart_filled
-                                            : TwitterIcons.heart_outline,
-                                        size: 16,
-                                        color: isliked ? Colors.red[600] : null,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Text(intl.NumberFormat.compact()
-                                          .format(double.parse(likes)))
-                                    ],
+                                  Flexible(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          isliked
+                                              ? TwitterIcons.heart_filled
+                                              : TwitterIcons.heart_outline,
+                                          size: 16,
+                                          color:
+                                              isliked ? Colors.red[600] : null,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(intl.NumberFormat.compact()
+                                            .format(double.parse(likes)))
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                Flexible(
-                                  child: Row(
-                                    children: <Widget>[
-                                      Icon(
-                                        TwitterIcons.iconfinder_share_227561,
-                                        size: 16,
-                                      ),
-                                    ],
+                                  Flexible(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          TwitterIcons.iconfinder_share_227561,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 16,
-                            )
-                          ],
+                                ],
+                              ),
+                              SizedBox(
+                                height: 16,
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Flexible(
+                              child: TextField(
+                            controller: _name,
+                            onChanged: (v) => setState(() {
+                              name = _name.text;
+                            }),
+                          )),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.title)
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Flexible(
+                              child: TextField(
+                            controller: _username,
+                            onChanged: (v) => setState(() {
+                              username = _username.text;
+                            }),
+                          )),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.person)
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Flexible(
+                              child: TextField(
+                            textDirection: isarabicbody
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
+                            maxLength: 700,
+                            minLines: 1,
+                            maxLines: 30,
+                            controller: _body,
+                            onChanged: (v) => setState(() {
+                              body = _body.text;
+                            }),
+                          )),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Icon(Icons.border_color)
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: Icon(Icons.date_range),
+                                onPressed: _showDatePicker),
+                          ),
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: Icon(TwitterIcons.comment_filled),
+                                onPressed: () => numPicker(1)),
+                          ),
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: Icon(TwitterIcons.retweet_filled),
+                                onPressed: () => numPicker(2)),
+                          ),
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: Icon(TwitterIcons.heart_filled),
+                                onPressed: () => numPicker(3)),
+                          ),
+                          CircleAvatar(
+                            child: IconButton(
+                                icon: _image != null
+                                    ? Icon(Icons.broken_image)
+                                    : Icon(Icons.image),
+                                onPressed: () {
+                                  if (_image != null) {
+                                    setState(() {
+                                      _image = null;
+                                    });
+                                  } else {
+                                    getImage();
+                                  }
+                                }),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
+                      ListTile(
+                        leading: Text("Is arabic body ?"),
+                        trailing: Switch(
+                          value: isarabicbody,
+                          onChanged: (bool newValue) {
+                            setState(() {
+                              isarabicbody = newValue;
+                            });
+                          },
+                        ),
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
+                      ListTile(
+                        leading: Text("Is verfied ?"),
+                        trailing: Switch(
+                          value: isVerfied,
+                          onChanged: (bool newValue) {
+                            setState(() {
+                              isVerfied = newValue;
+                            });
+                          },
+                        ),
+                      ),
+                      Divider(
+                        thickness: 1,
+                      ),
+                      ListTile(
+                        leading: Text("Is liked ?"),
+                        trailing: Switch(
+                          value: isliked,
+                          onChanged: (bool newValue) {
+                            setState(() {
+                              isliked = newValue;
+                            });
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Flexible(
-                            child: TextField(
-                          controller: _name,
-                          onChanged: (v) => setState(() {
-                            name = _name.text;
-                          }),
-                        )),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(Icons.title)
-                      ],
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Flexible(
-                            child: TextField(
-                          controller: _username,
-                          onChanged: (v) => setState(() {
-                            username = _username.text;
-                          }),
-                        )),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(Icons.person)
-                      ],
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Flexible(
-                            child: TextField(
-                          textDirection: isarabicbody
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
-                          maxLength: 700,
-                          minLines: 1,
-                          maxLines: 30,
-                          controller: _body,
-                          onChanged: (v) => setState(() {
-                            body = _body.text;
-                          }),
-                        )),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Icon(Icons.border_color)
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        CircleAvatar(
-                          child: IconButton(
-                              icon: Icon(Icons.date_range),
-                              onPressed: _showDatePicker),
-                        ),
-                        CircleAvatar(
-                          child: IconButton(
-                              icon: Icon(TwitterIcons.comment_filled),
-                              onPressed: () => numPicker(1)),
-                        ),
-                        CircleAvatar(
-                          child: IconButton(
-                              icon: Icon(TwitterIcons.retweet_filled),
-                              onPressed: () => numPicker(2)),
-                        ),
-                        CircleAvatar(
-                          child: IconButton(
-                              icon: Icon(TwitterIcons.heart_filled),
-                              onPressed: () => numPicker(3)),
-                        ),
-                        CircleAvatar(
-                          child: IconButton(
-                              icon: _image != null
-                                  ? Icon(Icons.broken_image)
-                                  : Icon(Icons.image),
-                              onPressed: () {
-                                if (_image != null) {
-                                  setState(() {
-                                    _image = null;
-                                  });
-                                } else {
-                                  getImage();
-                                }
-                              }),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Divider(
-                      thickness: 1,
-                    ),
-                    ListTile(
-                      leading: Text("Is arabic body ?"),
-                      trailing: Switch(
-                        value: isarabicbody,
-                        onChanged: (bool newValue) {
-                          setState(() {
-                            isarabicbody = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                    Divider(
-                      thickness: 1,
-                    ),
-                    ListTile(
-                      leading: Text("Is verfied ?"),
-                      trailing: Switch(
-                        value: isVerfied,
-                        onChanged: (bool newValue) {
-                          setState(() {
-                            isVerfied = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                    Divider(
-                      thickness: 1,
-                    ),
-                    ListTile(
-                      leading: Text("Is liked ?"),
-                      trailing: Switch(
-                        value: isliked,
-                        onChanged: (bool newValue) {
-                          setState(() {
-                            isliked = newValue;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),
