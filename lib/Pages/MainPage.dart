@@ -16,7 +16,7 @@ import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
-import 'package:permission_handler/permission_handler.dart';
+//import 'package:permission_handler/permission_handler.dart';
 import '../TwitterIcons.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -85,15 +85,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     try {
       DownloadsPathProvider.downloadsDirectory.then((v) async {
-        final status = await Permission.storage.request();
-        if (status.isGranted) {
-          final file =
-              await new File("${v.path}/screen${Random().nextInt(919199)}.png")
-                  .writeAsBytes(await imagebytes());
-          await file.create(recursive: true);
-          await GallerySaver.saveImage(file.path, albumName: "Downloads");
-          await file.delete();
-        }
+        //final status = await Permission.storage.request();
+        //if (status == PermissionStatus.granted) {
+        final file =
+            await new File("${v.path}/screen${Random().nextInt(919199)}.png")
+                .writeAsBytes(await imagebytes());
+        await file.create(recursive: true);
+        await GallerySaver.saveImage(file.path, albumName: "Downloads");
+        await file.delete();
+        //}
         _scaffold.currentState.hideCurrentSnackBar();
         _scaffold.currentState.showSnackBar(SnackBar(
           content: Text("The image saved successfully."),
