@@ -1,4 +1,4 @@
-package com.example.fake_tweet
+package fake.social.post
 
 import io.flutter.embedding.android.FlutterActivity
 

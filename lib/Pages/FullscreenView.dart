@@ -7,8 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'dart:ui' as ui;
-
-//import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class FullScreenCapture extends StatefulWidget {
   final Image img;
@@ -41,15 +40,15 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
     });
     try {
       DownloadsPathProvider.downloadsDirectory.then((v) async {
-        //final status = await Permission.storage.request();
-        //if (status == PermissionStatus.granted) {
-        final file =
-            await new File("${v.path}/screen${Random().nextInt(919199)}.png")
-                .writeAsBytes(await imagebytes());
-        await file.create(recursive: true);
-        await GallerySaver.saveImage(file.path, albumName: "Downloads");
-        await file.delete();
-        //}
+        final status = await Permission.storage.request();
+        if (status == PermissionStatus.granted) {
+          final file =
+              await new File("${v.path}/screen${Random().nextInt(919199)}.png")
+                  .writeAsBytes(await imagebytes());
+          await file.create(recursive: true);
+          await GallerySaver.saveImage(file.path, albumName: "Downloads");
+          // await file.delete();
+        }
         _scaffold.currentState.hideCurrentSnackBar();
         _scaffold.currentState.showSnackBar(SnackBar(
           content: Text("The image saved successfully."),

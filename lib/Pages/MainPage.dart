@@ -16,7 +16,7 @@ import 'package:gallery_saver/gallery_saver.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:jiffy/jiffy.dart';
-//import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../TwitterIcons.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -95,15 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     try {
       DownloadsPathProvider.downloadsDirectory.then((v) async {
-        //final status = await Permission.storage.request();
-        //if (status == PermissionStatus.granted) {
-        final file =
-            await new File("${v.path}/screen${Random().nextInt(919199)}.png")
-                .writeAsBytes(await imagebytes());
-        await file.create(recursive: true);
-        await GallerySaver.saveImage(file.path, albumName: "Downloads");
-        await file.delete();
-        //}
+        final status = await Permission.storage.request();
+        if (status == PermissionStatus.granted) {
+          final file =
+              await new File("${v.path}/screen${Random().nextInt(919199)}.png")
+                  .writeAsBytes(await imagebytes());
+          await file.create(recursive: true);
+          await GallerySaver.saveImage(file.path, albumName: "Downloads");
+          // await file.delete();
+        }
         _scaffold.currentState.hideCurrentSnackBar();
         _scaffold.currentState.showSnackBar(SnackBar(
           content: Text("The image saved successfully."),
@@ -196,23 +196,37 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: _image != null ? null : Icon(Icons.person),
                             radius: 20,
                           ),
-                          title: Row(
-                            children: <Widget>[
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-                                child: Text(
-                                  name == "" ? "name" : name,
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                          title: Container(
+                            width: (rowKey.currentContext?.findRenderObject()
+                                    as RenderBox)
+                                ?.size
+                                ?.width,
+                            child: Row(
+                              children: <Widget>[
+                                Flexible(
+                                  child: Text(
+                                    name == "" ? "name" : name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textDirection:
+                                        name.contains(new RegExp(r'[ا-ي]'))
+                                            ? TextDirection.rtl
+                                            : TextDirection.ltr,
+                                  ),
                                 ),
-                              ),
-                              isVerfied
-                                  ? Icon(
-                                      TwitterIcons.twitter_verified_badge,
-                                      color: Colors.blueAccent,
-                                      size: 16,
-                                    )
-                                  : SizedBox(),
-                            ],
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                isVerfied
+                                    ? Icon(
+                                        TwitterIcons.twitter_verified_badge,
+                                        color: Colors.blueAccent,
+                                        size: 16,
+                                      )
+                                    : SizedBox(),
+                              ],
+                            ),
                           ),
                           subtitle:
                               Text(username == "" ? "@username" : "@$username"),
@@ -353,6 +367,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: <Widget>[
                           Flexible(
                               child: TextField(
+                            maxLength: 50,
                             controller: _name,
                             onChanged: (v) => setState(() {
                               name = _name.text;
