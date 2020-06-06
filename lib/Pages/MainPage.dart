@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
@@ -12,6 +11,7 @@ import 'package:fake_tweet/Helper/locator.dart';
 import 'package:fake_tweet/Helper/theme_config.dart';
 import 'package:fake_tweet/Pages/FullscreenView.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_picker/flutter_picker.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -48,15 +48,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   bool isVerfied = false;
   bool isliked = false;
   bool isarabicbody = false;
-  File _image;
-  File _postImage;
+  Image _image;
+  Image _postImage;
   final picker = ImagePicker();
 
+  File photoProfile;
   Future getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile == null) return;
-      _image = File(pickedFile.path);
+      photoProfile = File(pickedFile.path);
+      _image = Image.file(File(pickedFile.path));
     });
   }
 
@@ -64,19 +66,21 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile == null) return;
-      _postImage = File(pickedFile.path);
+
+      _postImage = Image.file(File(pickedFile.path));
     });
   }
 
+  final tweet = getProf();
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
-    var tweet = getProf();
     if (tweet.name != null) _name.text = tweet.name;
     if (tweet.username != null) _username.text = tweet.username;
-    if (tweet.photo != null)
-      _image.writeAsBytes(tweet.photo).then((value) => {_image = value});
+    if (tweet.photo != null) {
+      _image = Image.memory(tweet.photo);
+    }
     name = _name.text;
     username = _username.text;
     body = _body.text;
@@ -99,8 +103,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    //!important!//
     if (state == AppLifecycleState.inactive) {
-      saveLatest(name, username, _image?.readAsBytesSync());
+      saveLatest(
+          name,
+          username,
+          _image == null
+              ? null
+              : photoProfile == null
+                  ? tweet.photo
+                  : base64Encode(photoProfile.readAsBytesSync()));
     }
   }
 
@@ -221,9 +233,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           leading: CircleAvatar(
                             backgroundColor:
                                 _image != null ? Colors.transparent : null,
-                            backgroundImage: _image != null
-                                ? Image.file(_image).image
-                                : null,
+                            backgroundImage:
+                                _image != null ? _image.image : null,
                             child: _image != null ? null : Icon(Icons.person),
                             radius: 20,
                           ),
@@ -303,9 +314,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                           image: new DecorationImage(
-                                            image: Image.file(
-                                              _postImage,
-                                            ).image,
+                                            image: _postImage.image,
                                             fit: BoxFit.cover,
                                           )))
                                   : SizedBox(),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'locator.dart';
 import 'tweet_post.dart';
+import 'dart:convert';
 
 Future shareImage(
     GlobalKey<ScaffoldState> _scaffold, String name, List<int> bytes) async {
@@ -21,14 +22,11 @@ Future shareImage(
   }
 }
 
-Future saveLatest(String name, String username, List<int> profilePhoto) async {
+Future saveLatest(String name, String username, String profilePhoto) async {
   final pref = locator.get<SharedPreferences>();
   await pref.setString("name", name);
   await pref.setString("username", username);
-  List<String> _profilePhoto = List<String>();
-  profilePhoto?.forEach((element) => _profilePhoto.add(element.toString()));
-  // await pref.setStringList(
-  //     "profilePhoto", _profilePhoto.length == 0 ? null : _profilePhoto);
+  await pref.setString("profilePhoto", profilePhoto);
 }
 
 Future deleteLatest() async {
@@ -40,10 +38,7 @@ TweetPost getProf() {
   final pref = locator.get<SharedPreferences>();
   String name = pref.getString("name");
   String username = pref.getString("username");
-  List<int> _profilePhoto = List<int>();
-  pref
-      .getStringList("profilePhoto")
-      ?.forEach((element) => _profilePhoto.add(int.parse(element)));
+  String profilePhoto = pref.getString("profilePhoto");
   return TweetPost(
-      name, username, _profilePhoto.length == 0 ? null : _profilePhoto);
+      name, username, profilePhoto == null ? null : base64Decode(profilePhoto));
 }
