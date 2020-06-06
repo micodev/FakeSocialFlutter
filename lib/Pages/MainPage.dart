@@ -6,6 +6,7 @@ import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
 import 'package:fake_tweet/Helper/RichTextView.dart';
+import 'package:fake_tweet/Helper/helper_file.dart';
 import 'package:fake_tweet/Helper/locator.dart';
 import 'package:fake_tweet/Helper/theme_config.dart';
 import 'package:fake_tweet/Pages/FullscreenView.dart';
@@ -102,7 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   .writeAsBytes(await imagebytes());
           await file.create(recursive: true);
           await GallerySaver.saveImage(file.path, albumName: "Downloads");
-          // await file.delete();
         }
         _scaffold.currentState.hideCurrentSnackBar();
         _scaffold.currentState.showSnackBar(SnackBar(
@@ -139,6 +139,12 @@ class _MyHomePageState extends State<MyHomePage> {
           key: _scaffold,
           appBar: AppBar(
             actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.share),
+                onPressed: () async {
+                  await shareImage(_scaffold, "img.png", await imagebytes());
+                },
+              ),
               IconButton(
                 icon: Icon(Icons.fullscreen),
                 onPressed: () async {

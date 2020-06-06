@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:fake_tweet/Helper/helper_file.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:gallery_saver/gallery_saver.dart';
@@ -47,7 +48,6 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
                   .writeAsBytes(await imagebytes());
           await file.create(recursive: true);
           await GallerySaver.saveImage(file.path, albumName: "Downloads");
-          // await file.delete();
         }
         _scaffold.currentState.hideCurrentSnackBar();
         _scaffold.currentState.showSnackBar(SnackBar(
@@ -91,6 +91,12 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
         key: _scaffold,
         appBar: AppBar(
           actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share),
+              onPressed: () async {
+                await shareImage(_scaffold, "img.png", await imagebytes());
+              },
+            ),
             isSaving
                 ? SizedBox()
                 : IconButton(
