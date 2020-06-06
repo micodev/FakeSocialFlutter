@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
@@ -29,7 +30,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String name = "";
   TextEditingController _name = TextEditingController(text: "name");
   String username = "";
@@ -69,7 +70,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+    var tweet = getProf();
+    if (tweet.name != null) _name.text = tweet.name;
+    if (tweet.username != null) _username.text = tweet.username;
+    if (tweet.photo != null)
+      _image.writeAsBytes(tweet.photo).then((value) => {_image = value});
     name = _name.text;
     username = _username.text;
     body = _body.text;
@@ -77,6 +84,24 @@ class _MyHomePageState extends State<MyHomePage> {
     retweet = _retweet.text;
     reply = _reply.text;
     date = "${Random().nextInt(12)}:${Random().nextInt(59)}am - 26th Jan 1999";
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive) {
+      saveLatest(name, username, _image?.readAsBytesSync());
+    }
   }
 
   bool isSaving = false;

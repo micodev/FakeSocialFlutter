@@ -20,11 +20,26 @@ class MyApp extends StatelessWidget {
         initTheme: initTheme,
         child: Builder(builder: (context) {
           return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              navigatorKey: locator.get<NavigationService>().navigatorKey,
-              title: 'FakeTwitter',
-              theme: ThemeProvider.of(context),
-              home: MyHomePage(title: 'Fake Twitter'));
+            debugShowCheckedModeBanner: false,
+            navigatorKey: locator.get<NavigationService>().navigatorKey,
+            title: 'FakeTwitter',
+            theme: ThemeProvider.of(context),
+            home: FutureBuilder(
+              future: locator.allReady(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  return MyHomePage(title: 'Fake Twitter');
+                } else {
+                  return Scaffold(
+                    body: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[CircularProgressIndicator()],
+                    ),
+                  );
+                }
+              },
+            ),
+          );
         }));
   }
 }
