@@ -27,8 +27,8 @@ Future saveLatest(String name, String username, List<int> profilePhoto) async {
   await pref.setString("username", username);
   List<String> _profilePhoto = List<String>();
   profilePhoto?.forEach((element) => _profilePhoto.add(element.toString()));
-  await pref.setStringList(
-      "profilePhoto", _profilePhoto.length == 0 ? null : _profilePhoto);
+  // await pref.setStringList(
+  //     "profilePhoto", _profilePhoto.length == 0 ? null : _profilePhoto);
 }
 
 Future deleteLatest() async {
