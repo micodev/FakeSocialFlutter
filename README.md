@@ -3,7 +3,7 @@
 This app still in alpha version
 this app plan to make fake posts or feed from social media and you can easily share it as it to your friends.
 
-## version 0.0.4
+## version 2.0.2+4
 
 ## screenshot
 

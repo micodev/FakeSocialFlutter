@@ -3,7 +3,7 @@ import 'package:fake_tweet/Helper/locator.dart';
 import 'package:flutter/material.dart';
 import 'Helper/NavigationService.dart';
 import 'Helper/theme_config.dart';
-import 'Pages/MainPage.dart';
+import 'Helper/router.dart';
 
 void main() {
   setupLocator();
@@ -20,25 +20,15 @@ class MyApp extends StatelessWidget {
         initTheme: initTheme,
         child: Builder(builder: (context) {
           return MaterialApp(
+            onGenerateRoute: Router.generateRoute,
+            initialRoute: Router.splash,
             debugShowCheckedModeBanner: false,
             navigatorKey: locator.get<NavigationService>().navigatorKey,
             title: 'FakeTwitter',
             theme: ThemeProvider.of(context),
-            home: FutureBuilder(
-              future: locator.allReady(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData) {
-                  return MyHomePage(title: 'Fake Twitter');
-                } else {
-                  return Scaffold(
-                    body: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[CircularProgressIndicator()],
-                    ),
-                  );
-                }
-              },
-            ),
+            builder: (context, child) {
+              return child;
+            },
           );
         }));
   }
