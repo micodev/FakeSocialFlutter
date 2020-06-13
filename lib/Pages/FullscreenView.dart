@@ -11,7 +11,7 @@ import 'dart:ui' as ui;
 import 'package:permission_handler/permission_handler.dart';
 
 class FullScreenCapture extends StatefulWidget {
-  final Image img;
+  final Widget img; //Image img;
   FullScreenCapture({Key key, this.img}) : super(key: key);
 
   @override
@@ -22,7 +22,6 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
   Offset offset = Offset.zero;
   bool isDrag = false;
   bool isEdit = false;
-  DragItem _dragItem;
   bool isSaving = false;
   GlobalKey _globalKey = new GlobalKey();
   GlobalKey<ScaffoldState> _scaffold = new GlobalKey();
@@ -79,9 +78,7 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final img = widget.img;
-    final size = MediaQuery.of(context).size;
-    _dragItem = new DragItem(size: size, img: img);
+
     FocusScope.of(context).requestFocus(new FocusNode());
   }
 
@@ -132,8 +129,8 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
                                 isDrag = true;
                               });
                             },
-                            child: isDrag ? SizedBox() : _dragItem,
-                            feedback: Container(child: _dragItem),
+                            child: isDrag ? SizedBox() : widget.img,
+                            feedback: widget.img,
                             onDraggableCanceled:
                                 (Velocity velocity, Offset offs) {
                               setState(() {
@@ -142,18 +139,7 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
                               });
                             },
                           )
-                        : isDrag ? SizedBox() : _dragItem,
-                    // child: GestureDetector(
-                    //   onPanUpdate: isEdit
-                    //       ? (details) {
-                    //           setState(() {
-                    //             offset = Offset(offset.dx + details.delta.dx,
-                    //                 offset.dy + details.delta.dy);
-                    //           });
-                    //         }
-                    //       : null,
-                    //   child: _dragItem,
-                    // ),
+                        : isDrag ? SizedBox() : widget.img,
                   ),
                 ],
               ),
@@ -163,39 +149,4 @@ class _FullScreenCaptureState extends State<FullScreenCapture> {
   }
 
   void downloadFile(img) {}
-}
-
-class DragItem extends StatefulWidget {
-  final Size size;
-  final Image img;
-  DragItem({this.size, this.img});
-
-  @override
-  _DragItemState createState() => _DragItemState();
-}
-
-class _DragItemState extends State<DragItem> {
-  @override
-  Widget build(BuildContext context) {
-    return ExtendedImage(
-      width: widget.size.width - 10,
-      image: widget.img.image,
-      fit: BoxFit.contain,
-      enableLoadState: false,
-      mode: ExtendedImageMode.gesture,
-      initGestureConfigHandler: (state) {
-        return GestureConfig(
-          minScale: 0.9,
-          animationMinScale: 0.7,
-          maxScale: 3.0,
-          animationMaxScale: 3.5,
-          speed: 1.0,
-          inertialSpeed: 100.0,
-          initialScale: 1.0,
-          inPageView: false,
-          initialAlignment: InitialAlignment.center,
-        );
-      },
-    );
-  }
 }

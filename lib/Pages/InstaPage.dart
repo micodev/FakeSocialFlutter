@@ -154,14 +154,14 @@ class _InstaPostPageState extends State<InstaPostPage> {
                                         ),
                                       ),
                                       SizedBox(
-                                        width: 10,
+                                        width: 15,
                                       ),
                                       Icon(
                                         InstagramIcons.comment,
                                         size: 25,
                                       ),
                                       SizedBox(
-                                        width: 10,
+                                        width: 15,
                                       ),
                                       Icon(
                                         InstagramIcons.direct,
@@ -189,7 +189,7 @@ class _InstaPostPageState extends State<InstaPostPage> {
                                     child: Text(
                                       "${likes.replaceAllMapped(reg, mathFunc)} likes",
                                       style: TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                          fontWeight: FontWeight.w800),
                                     ),
                                   )
                                 ],
@@ -197,31 +197,56 @@ class _InstaPostPageState extends State<InstaPostPage> {
                               SizedBox(
                                 height: 5,
                               ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Flexible(
-                                    child: RichText(
-                                      text: TextSpan(
-                                          text: username,
-                                          style: TextStyle(
-                                              color:
-                                                  islight ? Colors.black : null,
-                                              fontWeight: FontWeight.w600),
-                                          children: [
-                                            WidgetSpan(
-                                                child: SizedBox(
-                                              width: 5,
-                                            )),
-                                            TextSpan(
+                              Directionality(
+                                textDirection:
+                                    body.contains(new RegExp(r'[ا-ي]'))
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Flexible(
+                                      child: RichText(
+                                        textDirection:
+                                            body.contains(new RegExp(r'[ا-ي]'))
+                                                ? TextDirection.rtl
+                                                : TextDirection.ltr,
+                                        text: TextSpan(
+                                            style: TextStyle(
+                                                color: islight
+                                                    ? Colors.black
+                                                    : null),
+                                            children: [
+                                              WidgetSpan(
+                                                  child: SizedBox(
+                                                width: body.contains(
+                                                        new RegExp(r'[ا-ي]'))
+                                                    ? 5
+                                                    : 0,
+                                              )),
+                                              WidgetSpan(
+                                                  child: Text(
+                                                username,
                                                 style: TextStyle(
                                                     fontWeight:
-                                                        FontWeight.normal),
-                                                text: body)
-                                          ]),
-                                    ),
-                                  )
-                                ],
+                                                        FontWeight.w600),
+                                                textDirection:
+                                                    TextDirection.ltr,
+                                              )),
+                                              WidgetSpan(
+                                                  child: SizedBox(
+                                                width: 5,
+                                              )),
+                                              TextSpan(
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.normal),
+                                                  text: body)
+                                            ]),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                               SizedBox(
                                 height: 10,

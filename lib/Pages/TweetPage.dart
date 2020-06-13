@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:animated_theme_switcher/animated_theme_switcher.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:fake_tweet/Helper/DragItem.dart';
 import 'package:fake_tweet/Helper/NavigationService.dart';
 import 'package:fake_tweet/Helper/RichTextView.dart';
 import 'package:fake_tweet/Helper/helper_file.dart';
@@ -185,7 +186,9 @@ class _TweetPageState extends State<TweetPage> with WidgetsBindingObserver {
                   Uint8List img = await imagebytes();
                   await Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => FullScreenCapture(
-                            img: Image.memory(img),
+                          img: new DragItem(
+                              size: MediaQuery.of(context).size,
+                              img: Image.memory(img)) // Image.memory(img),
                           )));
                 },
               ),
